@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Top Up & Earn</title>
+  <style>
+    :root {
+      --bg: #07111f;
+      --bg-soft: #0d1b2a;
+      --panel: #12233a;
+      --panel-2: #172c45;
+      --card: #1a2f4d;
+      --primary: #3b82f6;
+      --primary-2: #2563eb;
+      --success: #22c55e;
+      --text: #edf6ff;
+      --muted: #9ab1c8;
+      --line: rgba(255,255,255,0.08);
+      --warning: #f59e0b;
+      --danger: #ef4444;
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: linear-gradient(135deg, var(--bg), #0c1828 58%, #0a1320);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 30px 16px;
+    }
+
+    .page {
+      width: 100%;
+      max-width: 1100px;
+      background: rgba(13, 27, 42, 0.96);
+      border: 1px solid var(--line);
+      border-radius: 28px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.35);
+      overflow: hidden;
+    }
+
+    .topbar {
+      padding: 26px 32px 18px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--line);
+      background: rgba(255,255,255,0.01);
+    }
+
+    .brand {
+      font-size: 1.05rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .wallet-pill {
+      background: linear-gradient(135deg, rgba(59,130,246,.12), rgba(37,99,235,.18));
+      border: 1px solid rgba(96,165,250,.3);
+      padding: 10px 16px;
+      border-radius: 999px;
+      font-weight: 700;
+      color: #dbeafe;
+    }
+
+    .content {
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 24px;
+      padding: 28px 32px 32px;
+    }
+
+    .left-panel, .right-panel {
+      background: rgba(255,255,255,0.02);
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      padding: 24px;
+    }
+
+    h1 {
+      margin: 0 0 10px;
+      font-size: clamp(2rem, 3vw, 3rem);
+      line-height: 1.1;
+    }
+
+    .subtitle {
+      color: var(--muted);
+      margin-bottom: 26px;
+      font-size: 1rem;
+    }
+
+    .amount-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(120px, 1fr));
+      gap: 14px;
+      margin-bottom: 30px;
+    }
+
+    .amount-card {
+      background: linear-gradient(180deg, rgba(19, 35, 58, 0.9), rgba(11, 22, 33, 0.9));
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 18px 12px;
+      text-align: center;
+      cursor: pointer;
+      transition: 0.2s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .amount-card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at top, rgba(59,130,246,0.18), transparent 55%);
+      opacity: 0;
+      transition: 0.2s ease;
+    }
+
+    .amount-card:hover {
+      transform: translateY(-2px);
+      border-color: rgba(59,130,246,0.45);
+    }
+
+    .amount-card.active {
+      border-color: rgba(96,165,250,0.8);
+      box-shadow: 0 0 0 1px rgba(96,165,250,0.4);
+      background: linear-gradient(180deg, rgba(24, 52, 86, 0.95), rgba(12, 25, 38, 0.95));
+    }
+
+    .amount-card.active::before {
+      opacity: 1;
+    }
+
+    .amount-card strong {
+      display: block;
+      font-size: 1.8rem;
+      margin-bottom: 6px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .reward {
+      color: var(--success);
+      font-weight: 700;
+      font-size: 0.9rem;
+      position: relative;
+      z-index: 1;
+    }
+
+    .benefits {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 6px;
+    }
+
+    .benefit {
+      background: rgba(255,255,255,0.02);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 14px 12px;
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    .benefit strong {
+      display: block;
+      color: var(--text);
+      font-size: 1.2rem;
+      margin-bottom: 6px;
+    }
+
+    .right-panel {
+      background: linear-gradient(180deg, rgba(19, 35, 58, 0.9), rgba(14, 25, 37, 1));
+    }
+
+    .chip-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 18px;
+    }
+
+    .chip {
+      display: inline-flex;
+      width: 44px;
+      height: 28px;
+      border-radius: 8px;
+      background: linear-gradient(135deg, #f7d978, #d7a93f);
+      box-shadow: inset 0 0 0 1px rgba(0,0,0,0.1);
+      position: relative;
+    }
+
+    .chip::before,
+    .chip::after {
+      content: "";
+      position: absolute;
+      inset: 7px;
+      border-radius: 5px;
+      border: 1px solid rgba(0,0,0,0.15);
+    }
+
+    .chip::after {
+      inset: 12px 8px;
+      border-left: 1px solid rgba(0,0,0,0.15);
+      border-right: 1px solid rgba(0,0,0,0.15);
+      border-top: 0;
+      border-bottom: 0;
+    }
+
+    .secure {
+      color: var(--muted);
+      font-size: 0.8rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .card-preview {
+      background: linear-gradient(135deg, #0f172a, #1e3a5f 60%, #2d6cdf);
+      border-radius: 22px;
+      padding: 22px;
+      border: 1px solid rgba(255,255,255,0.1);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.15);
+      margin-bottom: 20px;
+    }
+
+    .card-number {
+      font-size: clamp(1.2rem, 2vw, 1.8rem);
+      letter-spacing: 0.18em;
+      margin: 18px 0 20px;
+      font-weight: 700;
+    }
+
+    .card-meta {
+      display: flex;
+      justify-content: space-between;
+      color: rgba(255,255,255,0.82);
+      font-size: 0.8rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .checkout-form {
+      display: grid;
+      gap: 14px;
+    }
+
+    .field {
+      display: grid;
+      gap: 8px;
+    }
+
+    label {
+      font-size: 0.82rem;
+      color: var(--muted);
+      letter-spacing: 0.03em;
+    }
+
+    input {
+      width: 100%;
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid rgba(148, 163, 184, 0.25);
+      border-radius: 12px;
+      color: var(--text);
+      padding: 12px 14px;
+      font-size: 1rem;
+      outline: none;
+    }
+
+    input:focus {
+      border-color: rgba(96,165,250,0.9);
+      box-shadow: 0 0 0 3px rgba(59,130,246,0.18);
+    }
+
+    .row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .summary {
+      margin-top: 18px;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: rgba(255,255,255,0.02);
+      padding: 18px 16px;
+    }
+
+    .summary-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin: 10px 0;
+      color: var(--muted);
+      font-size: 0.96rem;
+    }
+
+    .summary-row.total {
+      font-size: 1.2rem;
+      font-weight: 800;
+      color: var(--text);
+      border-top: 1px solid var(--line);
+      padding-top: 14px;
+      margin-top: 18px;
+    }
+
+    .pay-btn {
+      margin-top: 20px;
+      width: 100%;
+      padding: 16px 18px;
+      border: none;
+      border-radius: 14px;
+      background: linear-gradient(135deg, var(--primary), var(--primary-2));
+      color: white;
+      font-weight: 800;
+      font-size: 1.05rem;
+      letter-spacing: 0.02em;
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      box-shadow: 0 16px 28px rgba(37,99,235,0.28);
+    }
+
+    .pay-btn:hover {
+      transform: translateY(-1px);
+    }
+
+    .pay-btn:active {
+      transform: translateY(0);
+    }
+
+    .note {
+      margin-top: 12px;
+      font-size: 0.78rem;
+      color: var(--muted);
+      text-align: center;
+    }
+
+    .success-message {
+      margin-top: 18px;
+      display: none;
+      background: rgba(34,197,94,0.12);
+      border: 1px solid rgba(34,197,94,0.4);
+      color: #dfffe7;
+      padding: 12px 14px;
+      border-radius: 12px;
+      font-size: 0.9rem;
+      text-align: center;
+    }
+
+    @media (max-width: 850px) {
+      .content {
+        grid-template-columns: 1fr;
+      }
+
+      .amount-grid {
+        grid-template-columns: repeat(2, minmax(120px, 1fr));
+      }
+    }
+
+    @media (max-width: 480px) {
+      .topbar {
+        flex-direction: column;
+        gap: 14px;
+        align-items: flex-start;
+      }
+
+      .amount-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .row {
+        grid-template-columns: 1fr;
+      }
+
+      .left-panel, .right-panel {
+        padding: 18px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <div class="topbar">
+      <div class="brand">Top Up & Earn</div>
+      <div class="wallet-pill">Wallet: $120.00</div>
+    </div>
+
+    <div class="content">
+      <div class="left-panel">
+        <h1>Recharge and earn rewards instantly.</h1>
+        <div class="subtitle">
+          Add money to your balance and receive bonus credit with every top-up.
+        </div>
+
+        <div class="amount-grid">
+          <div class="amount-card active" data-amount="20">
+            <strong>$20</strong>
+            <div class="reward">+ $2 bonus</div>
+          </div>
+          <div class="amount-card" data-amount="50">
+            <strong>$50</strong>
+            <div class="reward">+ $5 bonus</div>
+          </div>
+          <div class="amount-card" data-amount="100">
+            <strong>$100</strong>
+            <div class="reward">+ $12 bonus</div>
+          </div>
+          <div class="amount-card" data-amount="200">
+            <strong>$200</strong>
+            <div class="reward">+ $25 bonus</div>
+          </div>
+        </div>
+
+        <div class="benefits">
+          <div class="benefit">
+            <strong>24/7</strong>
+            Instant top-ups
+          </div>
+          <div class="benefit">
+            <strong>Fast</strong>
+            Secure payment
+          </div>
+          <div class="benefit">
+            <strong>Reward</strong>
+            Bonus credits
+          </div>
+        </div>
+      </div>
+
+      <div class="right-panel">
+        <div class="chip-row">
+          <div class="chip"></div>
+          <div class="secure">Secure Pay</div>
+        </div>
+
+        <div class="card-preview">
+          <div style="font-size: 0.8rem; letter-spacing: 0.08em; opacity: 0.8;">CARD NUMBER</div>
+          <div class="card-number">•••• •••• •••• 2564</div>
+          <div class="card-meta">
+            <div>
+              <div style="opacity: 0.7;">Cardholder</div>
+              <div>JANE DOE</div>
+            </div>
+            <div>
+              <div style="opacity: 0.7;">Valid</div>
+              <div>08/29</div>
+            </div>
+          </div>
+        </div>
+
+        <form class="checkout-form" id="paymentForm">
+          <div class="field">
+            <label for="cardName">Cardholder Name</label>
+            <input id="cardName" type="text" value="Jane Doe" />
+          </div>
+
+          <div class="field">
+            <label for="cardNumber">Card Number</label>
+            <input id="cardNumber" type="text" value="4242 4242 4242 2564" />
+          </div>
+
+          <div class="row">
+            <div class="field">
+              <label for="expiry">Expiry</label>
+              <input id="expiry" type="text" value="08/29" />
+            </div>
+            <div class="field">
+              <label for="cvv">CVV</label>
+              <input id="cvv" type="text" value="123" />
+            </div>
+          </div>
+
+          <div class="summary">
+            <div class="summary-row">
+              <span>Top Up</span>
+              <span id="topupValue">$20.00</span>
+            </div>
+            <div class="summary-row">
+              <span>Bonus</span>
+              <span id="bonusValue">$2.00</span>
+            </div>
+            <div class="summary-row total">
+              <span>Total</span>
+              <span id="totalValue">$22.00</span>
+            </div>
+          </div>
+
+          <button class="pay-btn" type="submit">Pay with Credit Card</button>
+          <div class="success-message" id="successMessage">
+            Payment successful! Your bonus has been added to your wallet.
+          </div>
+          <div class="note">Your payment is encrypted and secure.</div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const cards = document.querySelectorAll('.amount-card');
+    const topupValue = document.getElementById('topupValue');
+    const bonusValue = document.getElementById('bonusValue');
+    const totalValue = document.getElementById('totalValue');
+    const paymentForm = document.getElementById('paymentForm');
+    const successMessage = document.getElementById('successMessage');
+
+    const bonusMap = {
+      20: 2,
+      50: 5,
+      100: 12,
+      200: 25
+    };
+
+    let selectedAmount = 20;
+
+    function updateSummary(amount) {
+      const bonus = bonusMap[amount] || 0;
+      topupValue.textContent = `$${amount.toFixed(2)}`;
+      bonusValue.textContent = `$${bonus.toFixed(2)}`;
+      totalValue.textContent = `$${(amount + bonus).toFixed(2)}`;
+    }
+
+    cards.forEach(card => {
+      card.addEventListener('click', () => {
+        cards.forEach(item => item.classList.remove('active'));
+        card.classList.add('active');
+
+        selectedAmount = Number(card.dataset.amount);
+        updateSummary(selectedAmount);
+      });
+    });
+
+    paymentForm.addEventListener('submit', function (event) {
+      event.preventDefault();
+
+      const cardName = document.getElementById('cardName').value.trim();
+      const cardNumber = document.getElementById('cardNumber').value.trim();
+      const expiry = document.getElementById('expiry').value.trim();
+      const cvv = document.getElementById('cvv').value.trim();
+
+      if (!cardName || !cardNumber || !expiry || !cvv) {
+        alert('Please fill in all card details.');
+        return;
+      }
+
+      const bonus = bonusMap[selectedAmount] || 0;
+      const total = selectedAmount + bonus;
+
+      successMessage.style.display = 'block';
+      successMessage.textContent =
+        `Payment successful! You added $${selectedAmount.toFixed(2)} and received a $${bonus.toFixed(2)} bonus for a total of $${total.toFixed(2)}.`;
+
+      const walletLabel = document.querySelector('.wallet-pill');
+      const currentWallet = 120;
+      const newWallet = currentWallet + selectedAmount + bonus;
+      walletLabel.textContent = `Wallet: $${newWallet.toFixed(2)}`;
+
+      paymentForm.reset();
+    });
+
+    updateSummary(selectedAmount);
+  </script>
+</body>
+</html>
